@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2011 Talis Systems Ltd
+ * 
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ * 
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package com.talis.hadoop.rdf.collation;
 
 import org.apache.hadoop.conf.Configuration;
@@ -9,7 +25,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.jena.tdbloader3.Constants;
@@ -18,6 +34,8 @@ import org.apache.jena.tdbloader3.io.NQuadsInputFormat;
 import org.apache.jena.tdbloader3.io.QuadWritable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.talis.hadoop.rdf.QuadArrayWritable;
 
 public class QuadsCollater extends Configured implements Tool {
 
@@ -39,9 +57,9 @@ public class QuadsCollater extends Configured implements Tool {
 	public int run(String[] args) throws Exception {
 
 		Configuration configuration = getConf();
-        boolean useCompression = configuration.getBoolean(Constants.OPTION_USE_COMPRESSION, Constants.OPTION_USE_COMPRESSION_DEFAULT);
-		
-        if ( useCompression ) {
+        
+		boolean useCompression = configuration.getBoolean(Constants.OPTION_USE_COMPRESSION, Constants.OPTION_USE_COMPRESSION_DEFAULT);
+		if ( useCompression ) {
             configuration.setBoolean("mapred.compress.map.output", true);
     	    configuration.set("mapred.output.compression.type", "BLOCK");
     	    configuration.set("mapred.map.output.compression.codec", "org.apache.hadoop.io.compress.GzipCodec");
@@ -59,7 +77,8 @@ public class QuadsCollater extends Configured implements Tool {
 		
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-
+		FileOutputFormat.setCompressOutput(job, true);
+        
         job.setInputFormatClass(NQuadsInputFormat.class);
         job.setMapperClass(CollationMapper.class);		    
 		job.setMapOutputKeyClass(Text.class);
@@ -67,9 +86,9 @@ public class QuadsCollater extends Configured implements Tool {
 		
 		job.setReducerClass(CollationReducer.class);
 	    job.setOutputKeyClass(Text.class);
-	    job.setOutputValueClass(Text.class);
+	    job.setOutputValueClass(QuadArrayWritable.class);
 	    
-       	job.setOutputFormatClass(TextOutputFormat.class);
+       	job.setOutputFormatClass(SequenceFileOutputFormat.class);
        	 	
        	if ( LOG.isDebugEnabled() ) Utils.log(job, LOG);
 

@@ -14,23 +14,19 @@
  *    limitations under the License.
  */
 
-package com.talis.hadoop.rdf.solr;
-
-import java.io.IOException;
+package com.talis.hadoop.rdf;
 
 import org.apache.hadoop.io.ArrayWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.solr.hadoop.SolrRecordWriter;
+import org.apache.jena.tdbloader3.io.QuadWritable;
 
-import com.talis.hadoop.rdf.QuadArrayWritable;
+public class QuadArrayWritable extends ArrayWritable {
 
-public class SolrReducer extends Reducer<Text, QuadArrayWritable, Text, QuadArrayWritable> {
-
-	@Override
-	protected void setup(Context context) throws IOException, InterruptedException {
-	    super.setup(context);
-	    SolrRecordWriter.addReducerContext(context);
+	public QuadArrayWritable() {
+		super(QuadWritable.class);
 	}
 	
+	public QuadArrayWritable(QuadWritable[] values){
+		super(QuadWritable.class, values);
+	}
+
 }

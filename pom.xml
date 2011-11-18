@@ -10,16 +10,14 @@
   <name>Hadoop RDF to Solr Index Builder</name>
 
   <properties>
-    <!-- tdb.version>0.9.0-incubating-SNAPSHOT</tdb.version-->
     <tdbloader.version>0.6-hadoop-0.20.204.0-SNAPSHOT</tdbloader.version>
     <hadoop.version>0.20.204.0</hadoop.version>
-    <solr.version>1.4.0</solr.version>
+    <solr.hadoop.version>1.4.1-SOLR-1301</solr.hadoop.version>
     <slf4j.version>1.6.2</slf4j.version>
     <junit.version>4.8.2</junit.version>
     <jdk.version>1.6</jdk.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-
  
   <dependencies>
 
@@ -30,6 +28,16 @@
     </dependency>
     <dependency>
       <groupId>org.apache.solr</groupId>
+      <artifactId>solr-hadoop</artifactId>
+      <version>${solr.hadoop.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>tdbloader3</artifactId>
+      <version>${tdbloader.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.solr</groupId>
       <artifactId>solr-solrj</artifactId>
       <version>${solr.version}</version>
     </dependency>
@@ -37,11 +45,6 @@
       <groupId>org.apache.solr</groupId>
       <artifactId>solr-core</artifactId>
       <version>${solr.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.jena</groupId>
-      <artifactId>tdbloader3</artifactId>
-      <version>${tdbloader.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -55,17 +58,15 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.solr</groupId>
-      <artifactId>contrib-solr-hadoop</artifactId>
-      <version>1.4.2-dev</version>
-    </dependency>
-
-    <!-- Scope test, version and <scope> are in the parent pom.xml -->
-
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+     <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-test</artifactId>
+      <version>${hadoop.version}</version>
       <scope>test</scope>
     </dependency>
 

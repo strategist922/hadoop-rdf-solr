@@ -15,7 +15,7 @@
     </appender>
     
     <logger name="com.talis">
-        <level value="debug"/> 
+        <level value="info"/> 
     </logger> 
    
     <logger name="com.hp.hpl.jena.tdb">
