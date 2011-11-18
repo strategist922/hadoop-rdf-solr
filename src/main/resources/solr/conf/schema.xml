@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema name="talis-platform-solr" version="1.2">
+
+  <fields>
+    <field name="documentKey" type="keyword" indexed="true" stored="true" multiValued="false" />
+    <field name="subjectUri" type="keyword" indexed="true" stored="true" multiValued="false" />
+    <field name="graphUri" type="keyword" indexed="true" stored="true" multiValued="false" />
+    <!-- This is not actually used, it's here because of <defaultSearchField> is mandatory -->
+    <field name="any_not_to_be_used" type="standard-en" indexed="true" stored="false" multiValued="true" />
+    <dynamicField name="*" type="standard-en" indexed="true" stored="true" multiValued="true" />
+  </fields>
+
+  <uniqueKey>documentKey</uniqueKey>
+  <defaultSearchField>any_not_to_be_used</defaultSearchField>
+  <solrQueryParser defaultOperator="OR"/>
+
+  <types>
+    <fieldType name="keyword" class="solr.TextField">
+      <analyzer class="org.apache.lucene.analysis.KeywordAnalyzer"/>
+    </fieldType>
+    <fieldType name="standard-en" class="solr.TextField">
+      <analyzer class="org.apache.lucene.analysis.standard.StandardAnalyzer"/>
+    </fieldType>
+  </types>
+
+</schema>
