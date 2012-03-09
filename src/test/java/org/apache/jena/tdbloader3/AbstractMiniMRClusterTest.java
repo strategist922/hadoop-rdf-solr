@@ -28,6 +28,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
+import org.apache.hadoop.hdfs.server.datanode.DataNode;
 import org.apache.hadoop.mapred.MiniMRCluster;
 
 public abstract class AbstractMiniMRClusterTest {
@@ -39,13 +40,17 @@ public abstract class AbstractMiniMRClusterTest {
     protected static final String config = "target/hadoop-localhost-test.xml" ;
     
     public static void startCluster() throws IOException {
+    	FileUtils.forceMkdir(new File("build/test"));
     	FileUtils.deleteDirectory(new File("build/test")) ;
-
+    	
+        File testDir = new File("build/test");
+        Runtime.getRuntime().exec("chmod 755 build/test");
     	Configuration configuration = new Configuration() ;
     	// this is to avoid problems with permissions in the ./build directory used by tests... none of these attempts works.
-    	// configuration.setBoolean("dfs.permissions", false) ;
-    	// configuration.set("dfs.datanode.data.dir.perm", "755") ;
-        // "dfs.umask=022"
+//    	configuration.setBoolean("dfs.permissions", false) ;
+//    	configuration.set("dfs.datanode.data.dir.perm", "755") ;
+//        configuration.set("dfs.umask", "022");
+    	configuration.set(DataNode.DATA_DIR_PERMISSION_KEY, "775");
         System.setProperty("hadoop.log.dir", "build/test/logs") ;
         dfsCluster = new MiniDFSCluster(configuration, numNodes, true, null) ;
         mrCluster = new MiniMRCluster(numNodes, dfsCluster.getFileSystem().getUri().toString(), 1) ;

@@ -22,7 +22,7 @@ import java.util.HashSet;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.jena.tdbloader3.io.QuadWritable;
+import org.apache.jena.tdbloader4.io.QuadWritable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

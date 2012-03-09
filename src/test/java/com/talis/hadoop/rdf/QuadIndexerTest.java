@@ -48,7 +48,8 @@ public class QuadIndexerTest extends AbstractMiniMRClusterTest {
                 "-conf", config, 
                 input, 
                 output,
-                solrConfig
+                solrConfig,
+                "true"
         };		
 	    ToolRunner.run(new RdfSolrJob(), args); 
 	    System.out.println("JOB COMPLETED, COPYING TO LOCAL FS");

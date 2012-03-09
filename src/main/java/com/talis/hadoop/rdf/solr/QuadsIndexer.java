@@ -31,8 +31,8 @@ import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.jena.tdbloader3.Constants;
-import org.apache.jena.tdbloader3.Utils;
+import org.apache.jena.tdbloader4.Constants;
+import org.apache.jena.tdbloader4.Utils;
 import org.apache.solr.hadoop.SolrDocumentConverter;
 import org.apache.solr.hadoop.SolrOutputFormat;
 import org.slf4j.Logger;
@@ -85,7 +85,7 @@ public class QuadsIndexer extends Configured implements Tool {
 		Path solrConfig = new Path(args[2]);
 		FileInputFormat.addInputPath(job, input);
 		FileOutputFormat.setOutputPath(job, output);
-
+		
 		if (shards > 0) {
 			job.setNumReduceTasks(shards);
 		}

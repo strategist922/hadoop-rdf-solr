@@ -80,7 +80,7 @@ public class RdfSolrJob extends Configured implements Tool{
     	StringBuffer buf = new StringBuffer();
     	for ( FileStatus status : fs.listStatus(shardsPath)){
     		LOG.info(status.getPath() + " : " + status.isDir());
-    		if (status.isDir()){
+    		if(status.getPath().getName().startsWith("part-") && status.isDir()){
     			buf.append(status.getPath());
     			buf.append("\n");
     		}
@@ -89,6 +89,7 @@ public class RdfSolrJob extends Configured implements Tool{
     	out.write(buf.toString().getBytes());
     	out.flush();
     	out.close();
+    	LOG.info("Shard manifest built");
     }
     
 	public static void main(String[] args) throws Exception {

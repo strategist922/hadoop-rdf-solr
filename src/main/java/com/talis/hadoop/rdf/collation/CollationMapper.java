@@ -26,7 +26,7 @@ import java.io.IOException;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.jena.tdbloader3.io.QuadWritable;
+import org.apache.jena.tdbloader4.io.QuadWritable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +45,9 @@ public class CollationMapper extends Mapper<LongWritable, QuadWritable, Text, Qu
 		Node subject = quad.getSubject();
 		if ((null != subject) && (subject.isURI())){
 			context.getCounter(RDF_SOLR_COUNTER_GROUP, QUADS_ACCEPTED).increment(1);
-			Text outputKey = new Text(quad.getGraph().getURI() + "\t" + quad.getSubject().getURI());
+			Text outputKey = new Text(quad.getSubject().getURI());
 			context.write(outputKey, value);
-			LOG.debug("Emitting <g:s,quad> pair <{},{}> ", outputKey, value);
+			LOG.debug("Emitting <s,quad> pair <{},{}> ", outputKey, value);
 		}else{
 			context.getCounter(RDF_SOLR_COUNTER_GROUP, QUADS_DROPPED).increment(1);
 		}

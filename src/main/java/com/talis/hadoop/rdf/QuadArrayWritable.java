@@ -17,7 +17,7 @@
 package com.talis.hadoop.rdf;
 
 import org.apache.hadoop.io.ArrayWritable;
-import org.apache.jena.tdbloader3.io.QuadWritable;
+import org.apache.jena.tdbloader4.io.QuadWritable;
 
 public class QuadArrayWritable extends ArrayWritable {
 

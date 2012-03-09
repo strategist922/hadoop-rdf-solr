@@ -10,12 +10,15 @@
   <name>Hadoop RDF to Solr Index Builder</name>
 
   <properties>
-    <tdbloader.version>0.6-hadoop-0.20.204.0-SNAPSHOT</tdbloader.version>
+    <tdbloader.version>1.1</tdbloader.version>
     <hadoop.version>0.20.204.0</hadoop.version>
     <solr.hadoop.version>1.4.1-SOLR-1301</solr.hadoop.version>
-    <solr.version>3.4.0</solr.version>
+    <solr.version>3.3.0</solr.version>
+    <rdf-solr.version>2.5</rdf-solr.version>
+    <talis-io.version>1.2</talis-io.version>
     <slf4j.version>1.6.2</slf4j.version>
     <junit.version>4.8.2</junit.version>
+    <guava.version>11.0.1</guava.version>
     <jdk.version>1.6</jdk.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -34,7 +37,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.jena</groupId>
-      <artifactId>tdbloader3</artifactId>
+      <artifactId>jena-tdbloader4</artifactId>
       <version>${tdbloader.version}</version>
     </dependency>
     <dependency>
@@ -47,6 +50,21 @@
       <artifactId>solr-core</artifactId>
       <version>${solr.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.talis</groupId>
+      <artifactId>rdf-solr</artifactId>
+      <version>${rdf-solr.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.talis</groupId>
+      <artifactId>talis-io</artifactId>
+      <version>${talis-io.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
+	</dependency>    
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -160,12 +178,8 @@
 
   <repositories>
     <repository>
-      <id>talis-third-parties-releases</id>
-      <url>http://oss.talisplatform.com/content/repositories/third-party-releases</url>
-    </repository>
-    <repository>
-      <id>talis-third-parties-snapshots</id>
-      <url>http://oss.talisplatform.com/content/repositories/third-party-snapshots</url>
+      <id>talis-public-repo</id>
+      <url>http://oss.talisplatform.com/content/groups/public</url>
     </repository>
     <repository>
       <id>apache-snapshots-repo</id>

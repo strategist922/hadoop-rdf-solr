@@ -18,7 +18,6 @@ package com.talis.hadoop.rdf.solr;
 
 import java.io.IOException;
 
-import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.solr.hadoop.SolrRecordWriter;

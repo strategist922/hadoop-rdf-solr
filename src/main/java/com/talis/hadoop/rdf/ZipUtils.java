@@ -23,7 +23,11 @@
 
 package com.talis.hadoop.rdf;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -39,10 +43,33 @@ import org.apache.hadoop.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.talis.io.SizeLimitedOutputStream;
+
 public class ZipUtils {
 	private static final Logger LOG = LoggerFactory.getLogger(ZipUtils.class);
 
-	public static void packZipFile(Path perm, Path temp, Configuration conf, FileSystem fs) throws IOException {
+	public static void makeLocalZip(File source, OutputStream out) throws IOException{
+		ZipOutputStream zos = new ZipOutputStream(out);
+		zipDir(source.getAbsolutePath(), source, zos);
+		zos.flush();
+		zos.close();
+	}
+	
+	private static void zipDir(String root, File source, ZipOutputStream zos) throws IOException{
+		for(File sourceFile : source.listFiles()) {
+			if(sourceFile.isDirectory())	{
+				zipDir(root, source, zos);
+			}else{
+				FileInputStream fis = new FileInputStream(sourceFile);
+				ZipEntry anEntry = new ZipEntry(sourceFile.getPath().substring(root.length() + 1));
+				zos.putNextEntry(anEntry);
+				IOUtils.copyBytes(fis, zos, 1024 * 1024 * 8);
+				fis.close();
+			}
+		}
+	}
+	
+	public static void makeRemoteZip(Path perm, Path temp, Configuration conf, FileSystem fs) throws IOException {
 		FSDataOutputStream out = null;
 		ZipOutputStream zos = null;
 		int zipCount = 0;
@@ -193,6 +220,13 @@ public class ZipUtils {
 
 		return inZipPath;
 
+	}
+	public static void main(String[] args) throws IOException{
+		File combinedDir = new File("/tmp/idx");
+		OutputStream archiveOut = new SizeLimitedOutputStream(new File("/tmp/solr.zip"), 1024);
+		ZipUtils.makeLocalZip(combinedDir, archiveOut);
+		LOG.info("Zip output completed, transferring to remote fs");
+		
 	}
 
 }

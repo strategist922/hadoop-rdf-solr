@@ -2,15 +2,26 @@
 <schema name="talis-platform-solr" version="1.2">
 
   <fields>
-    <field name="documentKey" type="keyword" indexed="true" stored="true" multiValued="false" />
-    <field name="subjectUri" type="keyword" indexed="true" stored="true" multiValued="false" />
-    <field name="graphUri" type="keyword" indexed="true" stored="true" multiValued="false" />
+    <field name="document_key" type="keyword" indexed="true" stored="true" multiValued="false" />
+    <field name="subject_uri" type="keyword" indexed="true" stored="true" multiValued="false" />
+    <field name="graph_uri" type="keyword" indexed="true" stored="true" multiValued="true" />
+    <field name="json_description" type="keyword" indexed="false" stored="true" multiValued="false" />
+
+    <!-- Stats fields for tracking distribution of predicates/classes/namespaces-->
+    <field name="class" type="keyword" indexed="true" stored="false" multiValued="true"/>
+    <field name="class_ns" type="keyword" indexed="true" stored="false" multiValued="true"/>
+    <field name="property" type="keyword" indexed="true" stored="false" multiValued="true"/>
+    <field name="property_ns" type="keyword" indexed="true" stored="false" multiValued="true"/>
+  
+    <!-- Literal values get indexed into a dynamic field named for the predicate URI -->
+    <dynamicField name="*" type="standard-en" indexed="true" stored="true" multiValued="true" />
+    
     <!-- This is not actually used, it's here because of <defaultSearchField> is mandatory -->
     <field name="any_not_to_be_used" type="standard-en" indexed="true" stored="false" multiValued="true" />
-    <dynamicField name="*" type="standard-en" indexed="true" stored="true" multiValued="true" />
+
   </fields>
 
-  <uniqueKey>documentKey</uniqueKey>
+  <uniqueKey>document_key</uniqueKey>
   <defaultSearchField>any_not_to_be_used</defaultSearchField>
   <solrQueryParser defaultOperator="OR"/>
 
