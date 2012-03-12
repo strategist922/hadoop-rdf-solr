@@ -36,10 +36,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.lucene.analysis.WhitespaceAnalyzer;
+import org.apache.lucene.analysis.StopAnalyzer;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
@@ -77,39 +75,41 @@ public class IndexMergeReducer extends Reducer<LongWritable, Text, LongWritable,
     
 	@Override
     public void setup(Context context) {
-		LOG.info("Configuring index merge reducer");
+		System.out.println("Configuring index merge reducer");
 		taskAttemptID = context.getTaskAttemptID();
 		try{
 			fs = FileSystem.get(FileOutputFormat.getOutputPath(context).toUri(), context.getConfiguration());
             outRemote = FileOutputFormat.getWorkOutputPath(context);
-            LOG.info("Remote output path is {}", outRemote);
+            System.out.println(String.format("Remote output path is %s", outRemote));
             
             String workDirRoot = context.getConfiguration().get(LOCAL_WORK_ROOT_DIR, System.getProperty("java.io.tmpdir"));
-            LOG.info("Local work root directory is {}", workDirRoot);
+            System.out.println(String.format("Local work root directory is %s", workDirRoot));
             
             localWorkDir = new File(workDirRoot, context.getJobName() + "_" + context.getJobID() + "_" + taskAttemptID);
             FileUtils.forceMkdir(localWorkDir);
-            LOG.info("Local work directory is {}", localWorkDir);
+            System.out.println(String.format("Local work directory is %s", localWorkDir));
             
             localShards = new Path(localWorkDir.getAbsolutePath(), "shards");
             localShardsDir = new File(localShards.toString());
             FileUtils.forceMkdir(localShardsDir);
-            LOG.info("Local shards directory is {}", localShardsDir);
+            System.out.println(String.format("Local shards directory is %s", localShardsDir));
             
             outLocal = new Path(localWorkDir.getAbsolutePath(), "combined");
             combinedDir = new File(outLocal.toString());
             FileUtils.forceMkdir(combinedDir);
-            LOG.info("Local combined index directory is {}", combinedDir);
+            System.out.println(String.format("Local combined index directory is %s", combinedDir));
             
             optimizeOutput = context.getConfiguration().getBoolean(OPTIMIZE_OUTPUT, true);
 //            optimizeOutput = false;
-            LOG.info("Output optimization false is set to {}", optimizeOutput);
+            System.out.println(String.format("Output optimization false is set to %s", optimizeOutput));
             
             combined = FSDirectory.open(combinedDir);
-            writer = new IndexWriter(combined,
-            			new IndexWriterConfig(Version.LUCENE_CURRENT, 
-            							new WhitespaceAnalyzer(Version.LUCENE_CURRENT))
-						.setOpenMode(OpenMode.CREATE));
+            writer = new IndexWriter(combined, new StopAnalyzer(Version.LUCENE_33), 
+					  true, IndexWriter.MaxFieldLength.UNLIMITED);
+//            writer = new IndexWriter(combined,
+//            			new IndexWriterConfig(Version.LUCENE_29, 
+//            							new WhitespaceAnalyzer(Version.LUCENE_29))
+//						.setOpenMode(OpenMode.CREATE));
         } catch (Exception e) {
         	LOG.error("Error initialising merge reducer", e);
             throw new RuntimeException(e);
@@ -128,43 +128,49 @@ public class IndexMergeReducer extends Reducer<LongWritable, Text, LongWritable,
 		};
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         ScheduledFuture<?> task = scheduler.scheduleAtFixedRate(reporter, 60, 60, TimeUnit.SECONDS);
-		LOG.info("Scheduled progress reporter, combining index shards");
+		System.out.println("Scheduled progress reporter, combining index shards");
 		
 		Directory[] shards = getDirectories();
-		LOG.info("About to combine {} shards", shards.length);
-		writer.addIndexes(shards);
+		System.out.println(String.format("About to combine %s shards", shards.length));
+		writer.addIndexesNoOptimize(shards);
 		if (optimizeOutput){
-			LOG.info("Optimizing combined index");
+			System.out.println("Optimizing combined index");
 			writer.optimize();
 		}
 		
-		LOG.info("Optimization finished, committing and closing");
+		System.out.println("Optimization finished, committing and closing");
 		writer.commit();
-		LOG.info("Committed");
+		System.out.println("Committed");
 		writer.close();
-		LOG.info("Closed");
+		System.out.println("Closed");
 		
 		boolean disableZip = 
 				context.getConfiguration().getBoolean(LEAVE_OUTPUT_UNZIPPED, false);
 		if (disableZip){
-			LOG.info("Transferring local output to remote filesystem");
+			System.out.println("Transferring local output to remote filesystem");
 			if ( fs != null ) {
 				fs.completeLocalOutput(outRemote, outLocal);
 			}
-			LOG.info("Transfer completed");
+			System.out.println("Transfer completed");
 		}else{
-			LOG.info("Making Zip archive");
-			File zipDir = new File(localWorkDir, "zip");
-			FileUtils.forceMkdir(zipDir);
-			OutputStream archiveOut = new SizeLimitedOutputStream(new File(zipDir, "solr.zip"), MAX_ARCHIVE_SIZE);
-			ZipUtils.makeLocalZip(combinedDir, archiveOut);
-			LOG.info("Zip output completed, transferring to remote fs");
-			outLocal = new Path(localWorkDir.getAbsolutePath(), "zip");
+//			System.out.println("Making Zip archive");
+//			File zipDir = new File(localWorkDir, "zip");
+//			FileUtils.forceMkdir(zipDir);
+//			OutputStream archiveOut = new SizeLimitedOutputStream(new File(zipDir, "solr.zip"), MAX_ARCHIVE_SIZE);
+//			ZipUtils.makeLocalZip(combinedDir, archiveOut);
+//			System.out.println("Zip output completed, transferring to remote fs");
+//			outLocal = new Path(localWorkDir.getAbsolutePath(), "zip");
+//			if ( fs != null ) {
+//				fs.completeLocalOutput(outRemote, outLocal);
+//			}
+			
 			if ( fs != null ) {
-				fs.completeLocalOutput(outRemote, outLocal);
+				Path pathToZip = new Path(outRemote, "solr.zip");
+				ZipUtils.makeRemoteZip(pathToZip, outLocal, context.getConfiguration(), fs);
 			}
+			
 		}
-		LOG.debug("Combined index built, terminating reporter");
+		System.out.println("Combined index built, terminating reporter");
 		task.cancel(true);
 	} 
 	
@@ -176,9 +182,9 @@ public class IndexMergeReducer extends Reducer<LongWritable, Text, LongWritable,
 			if (null == shardsFs){
 				shardsFs = FileSystem.get(remote.toUri(), context.getConfiguration());
 			}
-			LOG.debug("Copying shard from {} to {}", remote, localShards);
+			System.out.println(String.format("Copying shard from %s to %s", remote, localShards));
 			shardsFs.copyToLocalFile(remote, localShards);
-			LOG.debug("Copy complete");
+			System.out.println("Copy complete");
 		}
 	}
 	
@@ -197,6 +203,10 @@ public class IndexMergeReducer extends Reducer<LongWritable, Text, LongWritable,
 		protected boolean handleDirectory(File directory, int depth, Collection results) throws IOException {
 			if (directory.getName().equals("index")){
 				results.add(FSDirectory.open(directory));
+				System.out.println("Contents of shard directory %s ");
+				for (String f : directory.list()){
+					System.out.println(f);
+				}
 				return false;
 			}else{
 				return true;

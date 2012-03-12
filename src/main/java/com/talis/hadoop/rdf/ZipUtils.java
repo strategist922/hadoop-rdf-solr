@@ -63,7 +63,7 @@ public class ZipUtils {
 				FileInputStream fis = new FileInputStream(sourceFile);
 				ZipEntry anEntry = new ZipEntry(sourceFile.getPath().substring(root.length() + 1));
 				zos.putNextEntry(anEntry);
-				IOUtils.copyBytes(fis, zos, 1024 * 1024 * 8);
+				org.apache.commons.io.IOUtils.copyLarge(fis, zos);
 				fis.close();
 			}
 		}
