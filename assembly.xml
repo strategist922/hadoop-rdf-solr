@@ -16,6 +16,7 @@
       <outputDirectory>/</outputDirectory>
       <excludes>
         <exclude>org.apache.hadoop:hadoop-core</exclude>
+        <exclude>org.slf4j:*</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>
