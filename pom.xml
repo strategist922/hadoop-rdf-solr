@@ -13,7 +13,7 @@
     <tdbloader.version>0.6-hadoop-0.20.204.0-SNAPSHOT</tdbloader.version>
     <hadoop.version>0.20.204.0</hadoop.version>
     <solr.hadoop.version>1.4.1-SOLR-1301</solr.hadoop.version>
-    <solr.version>3.4.0</solr.version>
+    <solr.version>8.8.2</solr.version>
     <slf4j.version>1.6.2</slf4j.version>
     <junit.version>4.8.2</junit.version>
     <jdk.version>1.6</jdk.version>
